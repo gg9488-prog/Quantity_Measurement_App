@@ -36,12 +36,24 @@ public class Quantity_Measurement_App {
             this.unit = unit;
         }
 
-        public double convertTo(LengthUnit targetUnit) {
-            if (targetUnit == null) {
-                throw new IllegalArgumentException("Target unit cannot be null");
+        public Quantity add(Quantity other) {
+            if (other == null) {
+                throw new IllegalArgumentException("Second operand cannot be null");
             }
-            double baseValue = unit.toBase(value);
-            return targetUnit.fromBase(baseValue);
+
+            double base1 = this.unit.toBase(this.value);
+            double base2 = other.unit.toBase(other.value);
+
+            double sumBase = base1 + base2;
+
+            double resultValue = this.unit.fromBase(sumBase);
+
+            return new Quantity(resultValue, this.unit);
+        }
+
+        public double convertTo(LengthUnit targetUnit) {
+            double base = unit.toBase(value);
+            return targetUnit.fromBase(base);
         }
 
         @Override
@@ -51,10 +63,10 @@ public class Quantity_Measurement_App {
 
             Quantity other = (Quantity) obj;
 
-            double thisBase = this.unit.toBase(this.value);
-            double otherBase = other.unit.toBase(other.value);
+            double base1 = this.unit.toBase(this.value);
+            double base2 = other.unit.toBase(other.value);
 
-            return Double.compare(thisBase, otherBase) == 0;
+            return Double.compare(base1, base2) == 0;
         }
 
         @Override
@@ -63,28 +75,28 @@ public class Quantity_Measurement_App {
         }
     }
 
-    public static double convert(double value, LengthUnit source, LengthUnit target) {
-        return new Quantity(value, source).convertTo(target);
-    }
-
-    public static void demonstrateLengthConversion(double value, LengthUnit from, LengthUnit to) {
-        double result = convert(value, from, to);
-        System.out.println("convert(" + value + ", " + from + ", " + to + ") → " + result);
-    }
-
-    public static void demonstrateLengthConversion(Quantity q, LengthUnit to) {
-        double result = q.convertTo(to);
-        System.out.println(q + " → " + result + " " + to);
-    }
-
     public static void main(String[] args) {
 
-        demonstrateLengthConversion(1.0, LengthUnit.FEET, LengthUnit.INCH);
-        demonstrateLengthConversion(3.0, LengthUnit.YARD, LengthUnit.FEET);
-        demonstrateLengthConversion(36.0, LengthUnit.INCH, LengthUnit.YARD);
-        demonstrateLengthConversion(1.0, LengthUnit.CENTIMETER, LengthUnit.INCH);
+        Quantity q1 = new Quantity(1.0, LengthUnit.FEET);
+        Quantity q2 = new Quantity(12.0, LengthUnit.INCH);
 
-        Quantity q = new Quantity(2.0, LengthUnit.YARD);
-        demonstrateLengthConversion(q, LengthUnit.INCH);
+        Quantity result1 = q1.add(q2);
+        System.out.println("1 ft + 12 inch = " + result1);
+
+        Quantity q3 = new Quantity(12.0, LengthUnit.INCH);
+        Quantity q4 = new Quantity(1.0, LengthUnit.FEET);
+
+        Quantity result2 = q3.add(q4);
+        System.out.println("12 inch + 1 ft = " + result2);
+
+        Quantity q5 = new Quantity(1.0, LengthUnit.YARD);
+        Quantity q6 = new Quantity(3.0, LengthUnit.FEET);
+
+        System.out.println("1 yard + 3 ft = " + q5.add(q6));
+
+        Quantity q7 = new Quantity(2.54, LengthUnit.CENTIMETER);
+        Quantity q8 = new Quantity(1.0, LengthUnit.INCH);
+
+        System.out.println("2.54 cm + 1 inch = " + q7.add(q8));
     }
 }
